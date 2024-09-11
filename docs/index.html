@@ -3,57 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPG Teste Local</title>
+    <title>EPG - Guia Eletrônico de Programação</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .epg {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .program {
+            border-bottom: 1px solid #ddd;
+            padding: 10px 0;
+        }
+        .program:last-child {
+            border-bottom: none;
+        }
+        .program-time {
+            color: #555;
+            font-size: 0.9em;
+        }
+        .program-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    </style>
 </head>
 <body>
-    <h1>EPG Teste Local</h1>
-    <div id="epg"></div>
+    <h1>Guia Eletrônico de Programação</h1>
+    <div class="epg" id="epg"></div>
 
     <script>
-        const xmlData = `
-        <tv>
-            <programme start="20240911060000 +0000" stop="20240911080000 +0000">
-                <title>Programa Exemplo 1</title>
-            </programme>
-            <programme start="20240911080000 +0000" stop="20240911100000 +0000">
-                <title>Programa Exemplo 2</title>
-            </programme>
-        </tv>`;
+        // URL da EPG
+        const epgUrl = 'https://www.bevy.be/bevyfiles/brazil.xml';
 
-        // Função para carregar e processar o XML local
-        function loadEPG() {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlData, 'application/xml');
+        // Função para carregar e processar o XML
+        async function loadEPG() {
+            try {
+                const response = await fetch(epgUrl);
+                if (!response.ok) {
+                    throw new Error('Erro ao baixar o arquivo EPG');
+                }
+                const xmlText = await response.text();
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(xmlText, 'application/xml');
 
-            const epgElement = document.getElementById('epg');
-            const programmes = xmlDoc.getElementsByTagName('programme');
+                const epgElement = document.getElementById('epg');
+                const programmes = xmlDoc.getElementsByTagName('programme');
 
-            // Iterar pelos programas e exibir na página
-            for (let i = 0; i < programmes.length; i++) {
-                const program = programmes[i];
-                const startTime = program.getAttribute('start');
-                const stopTime = program.getAttribute('stop');
-                const title = program.getElementsByTagName('title')[0].textContent;
+                // Verifica se há programas na lista
+                if (programmes.length === 0) {
+                    epgElement.innerHTML = "<p>Sem dados de programação disponíveis.</p>";
+                    return;
+                }
 
-                const programDiv = document.createElement('div');
-                programDiv.classList.add('program');
+                // Iterar pelos programas e exibir na página
+                for (let i = 0; i < programmes.length; i++) {
+                    const program = programmes[i];
+                    const startTime = program.getAttribute('start');
+                    const stopTime = program.getAttribute('stop');
+                    const title = program.getElementsByTagName('title')[0].textContent;
 
-                const timeDiv = document.createElement('div');
-                timeDiv.classList.add('program-time');
-                timeDiv.textContent = `Início: ${startTime} | Fim: ${stopTime}`;
+                    // Criar elementos para exibir os dados
+                    const programDiv = document.createElement('div');
+                    programDiv.classList.add('program');
 
-                const titleDiv = document.createElement('div');
-                titleDiv.classList.add('program-title');
-                titleDiv.textContent = title;
+                    const timeDiv = document.createElement('div');
+                    timeDiv.classList.add('program-time');
+                    timeDiv.textContent = `Início: ${startTime} | Fim: ${stopTime}`;
 
-                programDiv.appendChild(titleDiv);
-                programDiv.appendChild(timeDiv);
+                    const titleDiv = document.createElement('div');
+                    titleDiv.classList.add('program-title');
+                    titleDiv.textContent = title;
 
-                epgElement.appendChild(programDiv);
+                    // Adicionar os elementos ao programa
+                    programDiv.appendChild(titleDiv);
+                    programDiv.appendChild(timeDiv);
+
+                    // Adicionar o programa ao EPG
+                    epgElement.appendChild(programDiv);
+                }
+            } catch (error) {
+                console.error('Erro ao carregar a EPG:', error);
+                document.getElementById('epg').innerHTML = "<p>Erro ao carregar a programação.</p>";
             }
         }
 
-        // Carregar a EPG local
+        // Carregar a EPG ao iniciar a página
         loadEPG();
     </script>
 </body>
