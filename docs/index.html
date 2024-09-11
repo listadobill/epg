@@ -43,8 +43,8 @@
     <div class="epg" id="epg"></div>
 
     <script>
-        // URL da EPG
-        const epgUrl = 'https://www.bevy.be/bevyfiles/brazil.xml';
+        // URL da EPG com um proxy para contornar CORS
+        const epgUrl = 'https://api.allorigins.win/raw?url=https://www.bevy.be/bevyfiles/brazil.xml';
 
         // Função para carregar e processar o XML
         async function loadEPG() {
@@ -56,6 +56,12 @@
 
                 const epgElement = document.getElementById('epg');
                 const programmes = xmlDoc.getElementsByTagName('programme');
+
+                // Verifica se há programas na lista
+                if (programmes.length === 0) {
+                    epgElement.innerHTML = "<p>Sem dados de programação disponíveis.</p>";
+                    return;
+                }
 
                 // Iterar pelos programas e exibir na página
                 for (let i = 0; i < programmes.length; i++) {
@@ -85,6 +91,7 @@
                 }
             } catch (error) {
                 console.error('Erro ao carregar a EPG:', error);
+                document.getElementById('epg').innerHTML = "<p>Erro ao carregar a programação.</p>";
             }
         }
 
