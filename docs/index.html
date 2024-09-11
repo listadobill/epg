@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EPG - Guia Eletrônico de Programação</title>
+    <title>EPG - Guia Eletrônico de Programação2</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -43,8 +43,8 @@
     <div class="epg" id="epg"></div>
 
     <script>
-        // URL da EPG
-        const epgUrl = 'https://www.bevy.be/bevyfiles/brazil.xml';
+        // URL da EPG com um proxy para contornar CORS
+        const epgUrl = 'https://api.allorigins.win/raw?url=https://www.bevy.be/bevyfiles/brazil.xml';
 
         // Função para carregar e processar o XML
         async function loadEPG() {
